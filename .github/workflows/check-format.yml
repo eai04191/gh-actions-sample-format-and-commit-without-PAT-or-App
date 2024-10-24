@@ -5,12 +5,18 @@ on:
   pull_request:
 
 permissions:
+  statuses: write
   contents: read
 
 jobs:
   prettier:
     runs-on: ubuntu-latest
     steps:
+      - name: Set commit status as pending
+        uses: myrotvorets/set-commit-status-action@v2.0.1
+        with:
+          status: pending
+
       - uses: actions/checkout@v4
 
       - uses: oven-sh/setup-bun@v2
@@ -20,3 +26,8 @@ jobs:
 
       - name: Check format with Prettier
         run: bun run format:check
+
+      - name: Set final commit status
+        uses: myrotvorets/set-commit-status-action@v2.0.1
+        with:
+          status: ${{ job.status }}
