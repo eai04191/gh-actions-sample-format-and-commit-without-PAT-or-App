@@ -1,7 +1,10 @@
 name: Fix Format
 
 on:
-  workflow_dispatch:
+  workflow_run:
+    workflows: ["Check Format"]
+    types:
+      - completed
 
 permissions:
   actions: write
@@ -10,6 +13,8 @@ permissions:
 jobs:
   prettier:
     runs-on: ubuntu-latest
+    # Check Formatが失敗した時だけFix Formatを自動実行
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -27,6 +32,3 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: fix format"
-
-      - name: Trigger Check Format
-        run: gh workflow run check-format.yml --ref $GITHUB_REF
