@@ -1,0 +1,27 @@
+name: Check Format
+
+on:
+  push:
+  pull_request:
+  workflow_run:
+    workflows:
+      - Fix Format
+    types:
+      - completed
+
+permissions:
+  contents: read
+
+jobs:
+  prettier:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install
+        run: bun install
+
+      - name: Check format with Prettier
+        run: bun run format:check
