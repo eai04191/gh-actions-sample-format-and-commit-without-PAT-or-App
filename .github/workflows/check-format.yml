@@ -1,0 +1,42 @@
+name: Check Format
+
+on:
+  workflow_dispatch:
+    inputs:
+      sha:
+        type: string
+        description: "sha"
+        required: true
+
+permissions:
+  statuses: write
+  contents: read
+
+jobs:
+  prettier:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set commit status as pending
+        uses: myrotvorets/set-commit-status-action@v2.0.1
+        with:
+          sha: ${{ github.event.inputs.sha }}
+          status: pending
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.ref }}
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install
+        run: bun install --frozen-lockfile
+
+      - name: Check format with Prettier
+        run: bun run format:check
+
+      - name: Set final commit status
+        uses: myrotvorets/set-commit-status-action@v2.0.1
+        if: always()
+        with:
+          sha: ${{ github.event.inputs.sha }}
+          status: ${{ job.status }}
