@@ -9,6 +9,8 @@ permissions:
 jobs:
   prettier:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Trigger Check Format
-        run: gh workflow run check-format.yml --ref $GITHUB_REF --field sha=${{ github.event.pull_request.head.sha }}
+        run: gh workflow run check-format.yml --ref ${{ github.event.pull_request.head.ref }} --field sha=${{ github.event.pull_request.head.sha }}
