@@ -5,6 +5,7 @@ on:
 
 permissions:
   actions: write
+  contents: read
 
 jobs:
   prettier:
@@ -12,5 +13,7 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
+      - uses: actions/checkout@v4
+
       - name: Trigger Check Format
         run: gh workflow run check-format.yml --ref ${{ github.event.pull_request.head.ref }} --field sha=${{ github.event.pull_request.head.sha }}
