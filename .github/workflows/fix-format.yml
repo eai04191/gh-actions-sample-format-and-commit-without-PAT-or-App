@@ -1,10 +1,7 @@
 name: Fix Format
 
 on:
-  workflow_run:
-    workflows: ["Check Format"]
-    types:
-      - completed
+  workflow_dispatch:
 
 permissions:
   actions: write
@@ -13,14 +10,10 @@ permissions:
 jobs:
   prettier:
     runs-on: ubuntu-latest
-    # Check Formatが失敗した時だけFix Formatを自動実行
-    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.workflow_run.head_branch }}
 
       - uses: oven-sh/setup-bun@v2
 
@@ -31,6 +24,11 @@ jobs:
         run: bun run format
 
       - name: Commit changes
+        id: auto-commit-action
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: fix format"
+
+      - name: Trigger Check Format
+        if: steps.auto-commit-action.outputs.changes_detected == 'true'
+        run: gh workflow run check-format.yml --ref $GITHUB_REF --inputs sha=${{ steps.auto-commit-action.outputs.commit_hash }}

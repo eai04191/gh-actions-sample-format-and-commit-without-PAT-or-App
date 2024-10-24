@@ -1,0 +1,14 @@
+name: Check Format Caller
+
+on:
+  pull_request:
+
+permissions:
+  actions: write
+
+jobs:
+  prettier:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Check Format
+        run: gh workflow run check-format.yml --ref $GITHUB_REF --inputs sha=${{ github.event.pull_request.head.sha }}
