@@ -1,0 +1,29 @@
+name: Fix Format
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  prettier:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install
+        run: bun install --frozen-lockfile
+
+      - name: Fix format with Prettier
+        run: bun run format
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: fix format"
+
+      - name: Trigger Check Format
+        run: gh workflow run check-format.yml --ref $GITHUB_REF
